@@ -19,7 +19,7 @@ pub fn update_command(db: &mut Database, args: &[String]) -> AppResult<()> {
 
     let new_title = &args[3];
     db.update_task(id, new_title)?;
-    
+
     println!("✓ Tarea {} actualizada", id);
     Ok(())
 }

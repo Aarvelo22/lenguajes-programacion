@@ -34,8 +34,7 @@ impl Database {
         ).map_err(|e| AppError::DatabaseError(e.to_string()))?;
         Ok(())
     }
-
-    /// Crea una nueva tarea en la base de datos
+/// crear tarea
     pub fn create_task(&mut self, title: &str) -> AppResult<u32> {
         if title.trim().is_empty() {
             return Err(AppError::ValidationError(
@@ -44,7 +43,7 @@ impl Database {
         }
 
         let created_at = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
-        
+
         self.connection.execute(
             "INSERT INTO tasks (title, status, created_at, completed_at) VALUES (?1, ?2, ?3, ?4)",
             params![title, TaskStatus::Pending.as_str(), created_at, None::<String>],
@@ -54,28 +53,6 @@ impl Database {
         Ok(id)
     }
 
-    /// Obtiene una tarea específica por su ID
-    pub fn read_task(&self, id: u32) -> AppResult<Task> {
-        let mut stmt = self.connection.prepare(
-            "SELECT id, title, status, created_at, completed_at FROM tasks WHERE id = ?1"
-        ).map_err(|e| AppError::DatabaseError(e.to_string()))?;
-
-        let task = stmt.query_row(params![id], |row| {
-            let status_str: String = row.get(2)?;
-            let status = status_str.parse::<TaskStatus>()
-                .unwrap_or(TaskStatus::Pending);
-            
-            Ok(Task::new(
-                row.get(0)?,
-                row.get(1)?,
-                status,
-                row.get(3)?,
-                row.get(4)?,
-            ))
-        }).map_err(|_| AppError::TaskNotFound(id))?;
-
-        Ok(task)
-    }
 
     /// Obtiene todas las tareas de la base de datos
     pub fn read_all_tasks(&self) -> AppResult<Vec<Task>> {
@@ -87,7 +64,7 @@ impl Database {
             let status_str: String = row.get(2)?;
             let status = status_str.parse::<TaskStatus>()
                 .unwrap_or(TaskStatus::Pending);
-            
+
             Ok(Task::new(
                 row.get(0)?,
                 row.get(1)?,
@@ -102,7 +79,6 @@ impl Database {
         Ok(tasks)
     }
 
-
     /// Actualiza el título de una tarea
     pub fn update_task(&mut self, id: u32, new_title: &str) -> AppResult<()> {
         if new_title.trim().is_empty() {
@@ -111,40 +87,49 @@ impl Database {
             ));
         }
 
-        self.read_task(id)?;
-
-        self.connection.execute(
+        let rows_affected = self.connection.execute(
             "UPDATE tasks SET title = ?1 WHERE id = ?2",
             params![new_title, id],
         ).map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+        if rows_affected == 0 {
+            return Err(AppError::TaskNotFound(id));
+        }
+
         Ok(())
     }
 
     /// Actualiza el estado de una tarea
     pub fn update_task_status(&mut self, id: u32, new_status: TaskStatus) -> AppResult<()> {
-        self.read_task(id)?;
-
         let completed_at = if new_status == TaskStatus::Completed {
             Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string())
         } else {
             None
         };
 
-        self.connection.execute(
+        let rows_affected = self.connection.execute(
             "UPDATE tasks SET status = ?1, completed_at = ?2 WHERE id = ?3",
             params![new_status.as_str(), completed_at, id],
         ).map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+        if rows_affected == 0 {
+            return Err(AppError::TaskNotFound(id));
+        }
+
         Ok(())
     }
 
     /// Elimina una tarea de la base de datos
     pub fn delete_task(&mut self, id: u32) -> AppResult<()> {
-        self.read_task(id)?;
-
-        self.connection.execute(
+        let rows_affected = self.connection.execute(
             "DELETE FROM tasks WHERE id = ?1",
             params![id],
         ).map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+        if rows_affected == 0 {
+            return Err(AppError::TaskNotFound(id));
+        }
+
         Ok(())
     }
 }

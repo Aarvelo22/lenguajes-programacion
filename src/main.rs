@@ -52,7 +52,6 @@ fn execute_command(db: &mut Database, command: &str, args: &[String]) -> errors:
     match command {
         "add" => create::add_command(db, args),
         "list" => read::list_command(db),
-        "get" => read::get_command(db, args),
         "update" => update::update_command(db, args),
         "status" => update::status_command(db, args),
         "delete" => delete::delete_command(db, args),
@@ -66,3 +65,4 @@ fn execute_command(db: &mut Database, command: &str, args: &[String]) -> errors:
         ))),
     }
 }
+
