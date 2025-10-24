@@ -1,13 +1,9 @@
-// src/create.rs
-/// Módulo Create - Crear nuevas tareas
+
 
 use crate::database::Database;
 use crate::errors::{AppError, AppResult};
 
-/// Maneja el comando 'add' para crear una nueva tarea
-///
-/// # Ejemplo de uso en terminal:
-/// cargo run -- add "Comprar leche"
+
 pub fn add_command(db: &mut Database, args: &[String]) -> AppResult<()> {
     if args.len() < 3 {
         return Err(AppError::MissingArgument(

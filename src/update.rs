@@ -1,10 +1,9 @@
-/// Módulo Update - Actualizar tareas
+
 
 use crate::database::Database;
 use crate::status::TaskStatus;
 use crate::errors::{AppError, AppResult};
 
-/// Maneja el comando 'update' para actualizar el título de una tarea
 pub fn update_command(db: &mut Database, args: &[String]) -> AppResult<()> {
     if args.len() < 4 {
         return Err(AppError::MissingArgument(
@@ -24,7 +23,7 @@ pub fn update_command(db: &mut Database, args: &[String]) -> AppResult<()> {
     Ok(())
 }
 
-/// Maneja el comando 'status' para cambiar el estado de una tarea
+
 pub fn status_command(db: &mut Database, args: &[String]) -> AppResult<()> {
     if args.len() < 4 {
         return Err(AppError::MissingArgument(

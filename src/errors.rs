@@ -1,22 +1,16 @@
 // src/errors.rs
-/// Módulo Errors - Manejo de errores personalizado
+
 
 use std::fmt;
 
-/// Enum que representa los posibles errores de la aplicación
 #[derive(Debug)]
 pub enum AppError {
-    /// Error de base de datos SQLite
+
     DatabaseError(String),
-    /// Error de validación de entrada
     ValidationError(String),
-    /// Error de parseo de argumentos
     ParseError(String),
-    /// Tarea no encontrada
     TaskNotFound(u32),
-    /// Argumento faltante
     MissingArgument(String),
-    /// Estado inválido
     InvalidStatus(String),
 }
 
@@ -35,12 +29,10 @@ impl fmt::Display for AppError {
 
 impl std::error::Error for AppError {}
 
-/// Convierte rusqlite::Error a AppError
 impl From<rusqlite::Error> for AppError {
     fn from(err: rusqlite::Error) -> Self {
         AppError::DatabaseError(err.to_string())
     }
 }
 
-/// Tipo Result personalizado para la aplicación
 pub type AppResult<T> = Result<T, AppError>;

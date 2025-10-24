@@ -1,9 +1,8 @@
-/// Módulo Read - Leer y listar tareas
+
 
 use crate::database::Database;
 use crate::errors::AppResult;
 
-/// Maneja el comando 'list' para mostrar todas las tareas
 pub fn list_command(db: &Database) -> AppResult<()> {
     let tasks = db.read_all_tasks()?;
 

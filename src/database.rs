@@ -1,17 +1,17 @@
-/// Módulo Database - Operaciones SQLite
+
 
 use rusqlite::{Connection, Result as SqliteResult, params};
 use crate::task::Task;
 use crate::status::TaskStatus;
 use crate::errors::{AppError, AppResult};
 
-/// Estructura que representa la conexión a la base de datos
+
 pub struct Database {
     connection: Connection,
 }
 
 impl Database {
-    /// Crea una nueva conexión a la base de datos
+
     pub fn new(db_path: &str) -> AppResult<Self> {
         let connection = Connection::open(db_path)
             .map_err(|e| AppError::DatabaseError(e.to_string()))?;
@@ -20,7 +20,6 @@ impl Database {
         Ok(db)
     }
 
-    /// Inicializa el esquema de la base de datos
     fn init_schema(&self) -> AppResult<()> {
         self.connection.execute(
             "CREATE TABLE IF NOT EXISTS tasks (
@@ -34,7 +33,7 @@ impl Database {
         ).map_err(|e| AppError::DatabaseError(e.to_string()))?;
         Ok(())
     }
-/// crear tarea
+
     pub fn create_task(&mut self, title: &str) -> AppResult<u32> {
         if title.trim().is_empty() {
             return Err(AppError::ValidationError(
@@ -54,7 +53,6 @@ impl Database {
     }
 
 
-    /// Obtiene todas las tareas de la base de datos
     pub fn read_all_tasks(&self) -> AppResult<Vec<Task>> {
         let mut stmt = self.connection.prepare(
             "SELECT id, title, status, created_at, completed_at FROM tasks ORDER BY id DESC"
@@ -99,7 +97,7 @@ impl Database {
         Ok(())
     }
 
-    /// Actualiza el estado de una tarea
+
     pub fn update_task_status(&mut self, id: u32, new_status: TaskStatus) -> AppResult<()> {
         let completed_at = if new_status == TaskStatus::Completed {
             Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string())
@@ -119,7 +117,7 @@ impl Database {
         Ok(())
     }
 
-    /// Elimina una tarea de la base de datos
+    /// Elimina una tarea
     pub fn delete_task(&mut self, id: u32) -> AppResult<()> {
         let rows_affected = self.connection.execute(
             "DELETE FROM tasks WHERE id = ?1",

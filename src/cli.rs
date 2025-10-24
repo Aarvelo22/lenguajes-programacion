@@ -1,6 +1,4 @@
-/// Módulo CLI - Interfaz de línea de comandos
 
-/// Muestra el menú de ayuda con todos los comandos disponibles
 pub fn print_help() {
     println!("\n╔════════════════════════════════════════════════════════════╗");
     println!("║           TODO LIST - GESTOR DE TAREAS EN RUST             ║");
